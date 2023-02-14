@@ -3,10 +3,14 @@ import threading
 import tkinter as tk
 from tkinter import ttk, PhotoImage
 import FileHandling
+import os
 
 class PomodoroTimer:
 
     def __init__(self):
+        self.program_path = os.getcwd()
+        self.program_path = os.path.realpath(self.program_path)
+
         self.root = tk.Tk()
         self.root.geometry("600x350")
         self.root.title("Pomodoro OBS Timer")
@@ -69,6 +73,9 @@ class PomodoroTimer:
         self.pomodoro_counter_label = ttk.Label(self.grid_layout, text="Pomodoros: 0", font=("Ubuntu", 16))
         self.pomodoro_counter_label.grid(row=1, column=0, columnspan=3)
 
+        self.folder_button = ttk.Button(self.grid_layout, image=PhotoImage(file='dh.png'), command=self.open_folder)
+        self.folder_button.grid(row=0, column=3)
+
         self.pomodoros = 0
         self.skipped = False
         self.stopped = False
@@ -77,6 +84,10 @@ class PomodoroTimer:
         self.reset_clock()
         self.root.mainloop()
 
+
+    def open_folder(self):
+        os.startfile(self.program_path)
+        pass
 
     def start_timer_thread(self):
         if not self.running:
