@@ -4,6 +4,7 @@ import tkinter as tk
 from tkinter import ttk, PhotoImage
 import FileHandling
 import os
+from windows_toasts import WindowsToaster, ToastImageAndText1
 
 class PomodoroTimer:
 
@@ -49,11 +50,6 @@ class PomodoroTimer:
         self.max_pomodoros_entry_label = ttk.Label(self.tab1_grid_layout, text="Max Pomodoros: ", font=("Ubuntu", 16))
         self.max_pomodoros_entry_label.grid(row=1, column=0)
 
-        self.max_pomodoros = tk.StringVar()        
-        self.max_pomodoros.trace("w", lambda name, index, mode, max_pomodoro=self.max_pomodoros: self.handle_max_pomodoro_change())
-        self.max_pomodoros.set("1")
-        self.max_pomodoros_entry = ttk.Entry(master=self.tab1_grid_layout, textvariable=self.max_pomodoros, justify= "center", width=5)
-        self.max_pomodoros_entry.grid(row=1, column=1)
 
         self.tabs.add(self.tab1, text="Pomodoro")
         self.tabs.add(self.tab2, text="Break")
@@ -74,14 +70,24 @@ class PomodoroTimer:
         self.pomodoro_counter_label = ttk.Label(self.grid_layout, text="Pomodoros: 0", font=("Ubuntu", 16))
         self.pomodoro_counter_label.grid(row=1, column=0, columnspan=3)
 
+        self.max_pomodoros = tk.StringVar()        
+        self.max_pomodoros.trace("w", lambda name, index, mode, max_pomodoro=self.max_pomodoros: self.handle_max_pomodoro_change())
+        self.max_pomodoros.set("1")
+        self.max_pomodoros_entry = ttk.Entry(master=self.tab1_grid_layout, textvariable=self.max_pomodoros, justify= "center", width=5)
+        self.max_pomodoros_entry.grid(row=1, column=1)
+
         icon = PhotoImage(file='FolderIcon.png')
         self.folder_button = ttk.Button(self.grid_layout, image=icon, width=2, command=self.open_folder)
         self.folder_button.grid(row=0, column=3)
+
+        self.wintoaster = WindowsToaster('Pomodoro App')
+
 
         self.pomodoros = 0
         self.skipped = False
         self.stopped = False
         self.running = False
+
 
         self.reset_clock()
         self.root.mainloop()
@@ -124,10 +130,12 @@ class PomodoroTimer:
             if not self.stopped or self.skipped:
                 self.pomodoros += 1
                 self.pomodoro_counter_label.config(text=f"Pomodoros: {self.pomodoros}/{self.max_pomodoros.get()}")
-                if self.pomodoros % 4 == 0:
+                if self.pomodoros % 3 == 0:
                     self.tabs.select(2)
+                    self.windows_toast(f"Pomodoro {self.pomodoros}/{self.max_pomodoros.get()}", "Long Break")
                 else:
                     self.tabs.select(1)
+                    self.windows_toast(f"Pomodoro {self.pomodoros}/{self.max_pomodoros.get()}", "Short Break")
                 self.start_timer()
 
         elif current_tab == 1:
@@ -141,6 +149,7 @@ class PomodoroTimer:
                 full_seconds -= 1
             if not self.stopped or self.skipped:
                 self.tabs.select(0)
+                self.windows_toast("Short Break", f"Pomodoro {self.pomodoros}/{self.max_pomodoros.get()}")
                 self.start_timer()
 
         elif current_tab == 2:
@@ -155,6 +164,7 @@ class PomodoroTimer:
 
             if not self.stopped or self.skipped:
                 self.tabs.select(0)
+                self.windows_toast("Long Break", f"Pomodoro {self.pomodoros}/{self.max_pomodoros.get()}")
                 self.start_timer()
         
         else:
@@ -193,5 +203,11 @@ class PomodoroTimer:
 
         self.stopped = True
         self.skipped = True
+
+    def windows_toast(self, stage, next_stage):
+        toast = ToastImageAndText1()
+        toast.SetBody(f"{stage} Complete, Moving onto the next stage: {next_stage}")
+        toast.SetImage("icon.ico")
+        self.wintoaster.show_toast(toast)
 
 PomodoroTimer()
