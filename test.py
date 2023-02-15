@@ -1,4 +1,3 @@
 import os
-import sys
-arr = os. listdir(".")
+arr = 
 print(arr)

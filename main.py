@@ -7,8 +7,10 @@ import os
 import sys
 from windows_toasts import WindowsToaster, ToastImageAndText1
 
-
-os.chdir(sys._MEIPASS)
+try:
+    os.chdir(sys._MEIPASS)
+except:
+    pass
 class PomodoroTimer:
 
     def __init__(self):
@@ -89,6 +91,8 @@ class PomodoroTimer:
         self.max_pomodoros_entry = ttk.Entry(master=self.tab1_grid_layout, textvariable=self.max_pomodoros, justify= "center", width=5)
         self.max_pomodoros_entry.grid(row=1, column=1)
 
+        FileHandling.check_data_folder()
+
         self.reset_clock()
         self.root.mainloop()
 
@@ -98,7 +102,7 @@ class PomodoroTimer:
         self.pomodoro_counter_label.config(text=f"Pomodoros: {self.pomodoros}/{self.max_pomodoros.get()}")
 
     def open_folder(self):
-        os.startfile(self.program_path)
+        os.startfile(FileHandling.DATA_FOLDER)
         pass
 
     def start_timer_thread(self):
