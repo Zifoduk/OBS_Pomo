@@ -4,19 +4,19 @@ import tkinter as tk
 from tkinter import ttk, PhotoImage
 import FileHandling
 import os
+import sys
 from windows_toasts import WindowsToaster, ToastImageAndText1
 
+
+os.chdir(sys._MEIPASS)
 class PomodoroTimer:
 
     def __init__(self):
-        self.program_path = os.getcwd()
-        self.program_path = os.path.realpath(self.program_path)
-
         self.root = tk.Tk()
         self.root.geometry("600x350")
         self.root.title("Pomodoro OBS Timer")
         self.root.resizable(False,False)
-        self.root.iconbitmap("icon.ico")
+        self.root.iconbitmap("data/icon.ico")
 
         self.s= ttk.Style()
         self.s.configure("TNotebook.Tab", font=("Ubuntu", 16))
@@ -71,11 +71,11 @@ class PomodoroTimer:
         self.pomodoro_counter_label = ttk.Label(self.grid_layout, text="Pomodoros: 0", font=("Ubuntu", 16))
         self.pomodoro_counter_label.grid(row=1, column=0, columnspan=3)
 
-        icon = PhotoImage(file='FolderIcon.png')
+        icon = PhotoImage(file='data/FolderIcon.png')
         self.folder_button = ttk.Button(self.grid_layout, image=icon, width=2, command=self.open_folder)
         self.folder_button.grid(row=0, column=3)
 
-        self.wintoaster = WindowsToaster('Pomodoro App')
+        
 
 
         self.pomodoros = 0
@@ -103,9 +103,13 @@ class PomodoroTimer:
 
     def start_timer_thread(self):
         if not self.running:
-            t = threading.Thread(target=self.start_timer)
+            t = threading.Thread(target=self.preflight)
             t.start()
             self.running = True
+
+    def preflight(self):
+        self.wintoaster = WindowsToaster('Pomodoro App')
+        self.start_timer()
 
     def start_timer(self):
         self.stopped = False
