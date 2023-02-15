@@ -16,6 +16,7 @@ class PomodoroTimer:
         self.root.geometry("600x350")
         self.root.title("Pomodoro OBS Timer")
         self.root.resizable(False,False)
+        self.root.iconbitmap("icon.ico")
 
         self.s= ttk.Style()
         self.s.configure("TNotebook.Tab", font=("Ubuntu", 16))
