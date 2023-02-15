@@ -71,12 +71,6 @@ class PomodoroTimer:
         self.pomodoro_counter_label = ttk.Label(self.grid_layout, text="Pomodoros: 0", font=("Ubuntu", 16))
         self.pomodoro_counter_label.grid(row=1, column=0, columnspan=3)
 
-        self.max_pomodoros = tk.StringVar()        
-        self.max_pomodoros.trace("w", lambda name, index, mode, max_pomodoro=self.max_pomodoros: self.handle_max_pomodoro_change())
-        self.max_pomodoros.set("1")
-        self.max_pomodoros_entry = ttk.Entry(master=self.tab1_grid_layout, textvariable=self.max_pomodoros, justify= "center", width=5)
-        self.max_pomodoros_entry.grid(row=1, column=1)
-
         icon = PhotoImage(file='FolderIcon.png')
         self.folder_button = ttk.Button(self.grid_layout, image=icon, width=2, command=self.open_folder)
         self.folder_button.grid(row=0, column=3)
@@ -89,6 +83,11 @@ class PomodoroTimer:
         self.stopped = False
         self.running = False
 
+        self.max_pomodoros = tk.StringVar()        
+        self.max_pomodoros.trace("w", lambda name, index, mode, max_pomodoro=self.max_pomodoros: self.handle_max_pomodoro_change())
+        self.max_pomodoros.set("1")
+        self.max_pomodoros_entry = ttk.Entry(master=self.tab1_grid_layout, textvariable=self.max_pomodoros, justify= "center", width=5)
+        self.max_pomodoros_entry.grid(row=1, column=1)
 
         self.reset_clock()
         self.root.mainloop()
