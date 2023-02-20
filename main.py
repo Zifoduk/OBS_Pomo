@@ -15,7 +15,7 @@ class PomodoroTimer:
 
     def __init__(self):
         self.root = tk.Tk()
-        self.root.geometry("600x350")
+        self.root.geometry("650x450")
         self.root.title("Pomodoro OBS Timer")
         self.root.resizable(False,False)
         self.root.iconbitmap("data/icon.ico")
@@ -31,13 +31,13 @@ class PomodoroTimer:
         self.tab2 = ttk.Frame(self.tabs, width=600, height=100)
         self.tab3 = ttk.Frame(self.tabs, width=600, height=100)
 
-        self.pomodoro_timer_label = ttk.Label(self.tab1, text="30:00", font=("Ubuntu", 48))
+        self.pomodoro_timer_label = ttk.Label(self.tab1, text="25:00", font=("Ubuntu", 48))
         self.pomodoro_timer_label.pack(pady=20)
 
-        self.short_break_timer_label = ttk.Label(self.tab2, text="10:00", font=("Ubuntu", 48))
+        self.short_break_timer_label = ttk.Label(self.tab2, text="05:00", font=("Ubuntu", 48))
         self.short_break_timer_label.pack(pady=20)
 
-        self.long_break_timer_label = ttk.Label(self.tab3, text="20:00", font=("Ubuntu", 48))
+        self.long_break_timer_label = ttk.Label(self.tab3, text="15:00", font=("Ubuntu", 48))
         self.long_break_timer_label.pack(pady=20)
 
         self.tab1_grid_layout = ttk.Frame(self.tab1)
@@ -77,9 +77,6 @@ class PomodoroTimer:
         self.folder_button = ttk.Button(self.grid_layout, image=icon, width=2, command=self.open_folder)
         self.folder_button.grid(row=0, column=3)
 
-        
-
-
         self.pomodoros = 0
         self.skipped = False
         self.stopped = False
@@ -90,6 +87,40 @@ class PomodoroTimer:
         self.max_pomodoros.set("1")
         self.max_pomodoros_entry = ttk.Entry(master=self.tab1_grid_layout, textvariable=self.max_pomodoros, justify= "center", width=5)
         self.max_pomodoros_entry.grid(row=1, column=1)
+
+        self.time_pomodoro = tk.StringVar()
+        self.time_pomodoro.set("20")
+        self.time_pomodoro_combobox = ttk.Combobox(self.tab1_grid_layout, textvariable=self.time_pomodoro, width=5)
+        self.time_pomodoro_combobox.grid(row=2, column=1)
+        self.time_pomodoro_combobox['values'] = [20,30,40,45,50,60,90]
+        self.time_pomodoro_combobox['state'] = 'readonly'
+        self.time_pomodoro_combobox.bind("<<ComboboxSelected>>", self.timer_label_reset)
+
+        self.time_pomodoro_entry_label = ttk.Label(self.tab1_grid_layout, text="Pomodoro Time (min): ", font=("Ubuntu", 16))
+        self.time_pomodoro_entry_label.grid(row=2, column=0)
+
+        self.time_break = tk.StringVar()
+        self.time_break.set("5")
+        self.time_break_combobox = ttk.Combobox(self.tab1_grid_layout, textvariable=self.time_break, width=5)
+        self.time_break_combobox.grid(row=3, column=1)
+        self.time_break_combobox['values'] = [5,10,15,20]
+        self.time_break_combobox['state'] = 'readonly'
+        self.time_break_combobox.bind("<<ComboboxSelected>>", self.timer_label_reset)
+        
+        self.time_break_entry_label = ttk.Label(self.tab1_grid_layout, text="Break Time (min): ", font=("Ubuntu", 16))
+        self.time_break_entry_label.grid(row=3, column=0)
+
+        self.time_long_break = tk.StringVar()
+        self.time_long_break.set("10")
+        self.time_long_break_combobox = ttk.Combobox(self.tab1_grid_layout, textvariable=self.time_long_break, width=5)
+        self.time_long_break_combobox.grid(row=4, column=1)
+        self.time_long_break_combobox['values'] = [5,10,15,20,25,30]
+        self.time_long_break_combobox['state'] = 'readonly'
+        self.time_long_break_combobox.bind("<<ComboboxSelected>>", self.timer_label_reset)
+        
+        self.time_long_break_entry_label = ttk.Label(self.tab1_grid_layout, text="Long Break Time (min): ", font=("Ubuntu", 16))
+        self.time_long_break_entry_label.grid(row=4, column=0)
+
 
         FileHandling.check_data_folder()
 
@@ -125,7 +156,7 @@ class PomodoroTimer:
             if int(self.pomodoros) >= int(self.max_pomodoros.get()):
                 self.stopped = True
 
-            full_seconds = 60 * 30
+            full_seconds = 60 * int(self.time_pomodoro.get())
 
             while full_seconds > 0 and not self.stopped:
                 minutes, seconds = divmod(full_seconds, 60)
@@ -147,7 +178,7 @@ class PomodoroTimer:
                 self.start_timer()
 
         elif current_tab == 1:
-            full_seconds = 60 * 10
+            full_seconds = 60 * int(self.time_break.get())
             while full_seconds > 0 and not self.stopped:
                 minutes, seconds = divmod(full_seconds, 60)
                 self.short_break_timer_label.config(text=f"{minutes:02d}:{seconds:02d}")
@@ -161,7 +192,7 @@ class PomodoroTimer:
                 self.start_timer()
 
         elif current_tab == 2:
-            full_seconds = 60 * 20
+            full_seconds = 60 * int(self.time_long_break.get())
             while full_seconds > 0 and not self.stopped:
                 minutes, seconds = divmod(full_seconds, 60)
                 self.long_break_timer_label.config(text=f"{minutes:02d}:{seconds:02d}")
@@ -183,9 +214,9 @@ class PomodoroTimer:
         self.stopped = True
         self.skipped = False
         self.pomodoros = 0
-        self.pomodoro_timer_label.config(text="30:00")
-        self.short_break_timer_label.config(text="10:00")
-        self.long_break_timer_label.config(text="20:00")
+        self.pomodoro_timer_label.config(text=f"{self.time_pomodoro.get()}:00")
+        self.short_break_timer_label.config(text=f"{self.time_break.get()}:00")
+        self.long_break_timer_label.config(text=f"{self.time_long_break.get()}:00")
         self.pomodoro_counter_label.config(text=f"Pomodoros: 0/{self.max_pomodoros.get()}")
         self.running = False
 
@@ -193,21 +224,21 @@ class PomodoroTimer:
 
         current_tab = self.tabs.index(self.tabs.select())
         if current_tab == 0:
-            FileHandling.write_working(f"30:00", self.current_task)
+            FileHandling.write_working(f"{self.time_pomodoro.get()}:00", self.current_task)
         elif current_tab == 1:
-            FileHandling.write_break(f"10:00")
+            FileHandling.write_break(f"{self.time_break.get()}:00")
         elif current_tab == 2:
-            FileHandling.write_long_break(f"20:00")
+            FileHandling.write_long_break(f"{self.time_long_break.get()}:00")
 
 
     def skip_clock(self):
         current_tab = self.tabs.index(self.tabs.select())
         if current_tab == 0:
-            self.pomodoro_timer_label.config(text="30:00")
+            self.pomodoro_timer_label.config(text=f"{self.time_pomodoro.get()}:00")
         elif current_tab == 1:
-            self.short_break_timer_label.config(text="10:00")
+            self.short_break_timer_label.config(text=f"{self.time_break.get()}:00")
         elif current_tab == 2:
-            self.long_break_timer_label.config(text="20:00")
+            self.long_break_timer_label.config(text=f"{self.time_long_break.get()}:00")
 
         self.stopped = True
         self.skipped = True
@@ -217,5 +248,10 @@ class PomodoroTimer:
         toast.SetBody(f"{stage} Complete, Moving onto the next stage: {next_stage}")
         toast.SetImage("icon.ico")
         self.wintoaster.show_toast(toast)
+
+    def timer_label_reset(self, eventObject):
+        self.pomodoro_timer_label.config(text=f"{self.time_pomodoro.get()}:00")
+        self.short_break_timer_label.config(text=f"{self.time_break.get()}:00")
+        self.long_break_timer_label.config(text=f"{self.time_long_break.get()}:00")
 
 PomodoroTimer()
